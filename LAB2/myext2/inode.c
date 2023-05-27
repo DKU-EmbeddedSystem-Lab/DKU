@@ -872,13 +872,13 @@ static int ext2_writepage(struct page *page, struct writeback_control *wbc)
 
 static int ext2_readpage(struct file *file, struct page *page)
 {
-	//printk(KERN_DEBG "my_ext2: readpage for %lxth page of the file %lx\n", page->index, page->mapping->host->i_ino);
+	//printk(KERN_DEBUG "my_ext2: readpage for %lxth page of the file %lx\n", page->index, page->mapping->host->i_ino);
 	return mpage_readpage(page, ext2_get_block);
 }
 
 static void ext2_readahead(struct readahead_control *rac)
 {
-	//printk(KERN_DEBG "my_ext2: readahead for %lxth page of the file %lx\n", rac->index, rac->mapping->host->i_ino);
+	//printk(KERN_DEBUG "my_ext2: readahead for %lxth page of the file %lx\n", rac->_index, rac->mapping->host->i_ino);
 	mpage_readahead(rac, ext2_get_block);
 }
 

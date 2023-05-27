@@ -719,17 +719,17 @@ not_empty:
 	return 0;
 }
 
-#if 0
+/*
 static int my_ext2_readdir(struct file *file, struct dir_context *ctx) {
 	printk(KERN_DEBUG "my_ext2: my_ext2_readdir for file %lx\n", file->f_inode->i_ino);
 	return ext2_readdir(file, ctx);
 }
-#endif
+*/
 
 const struct file_operations ext2_dir_operations = {
 	.llseek		= generic_file_llseek,
 	.read		= generic_read_dir,
-	.iterate_shared	= ext2_readdir, //my_ext2_readdir,
+	.iterate_shared	= ext2_readdir, //my_ext2_readdir
 	.unlocked_ioctl = ext2_ioctl,
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= ext2_compat_ioctl,
