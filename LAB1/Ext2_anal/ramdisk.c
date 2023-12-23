@@ -4,6 +4,8 @@
 #include <linux/bio.h>
 #include <linux/pagemap.h>
 
+//#define KERNEL_6
+
 static int major = 0;
 static unsigned char memory_data[512 * 1024 * 1024];
 
@@ -44,8 +46,11 @@ static int brd_do_bvec(struct page *page, unsigned int len, unsigned int off, un
     return err;
 }
 
+#ifdef KERNEL_6
+void brd_submit_bio(struct bio *bio)
+#else
 static blk_qc_t brd_submit_bio(struct bio *bio)
-//void brd_submit_bio(struct bio *bio)
+#endif
 {
     sector_t sector = bio->bi_iter.bi_sector;
     struct bio_vec bvec;
@@ -67,13 +72,18 @@ static blk_qc_t brd_submit_bio(struct bio *bio)
     }
 
     bio_endio(bio);
+#ifdef KERNEL_6
+    return;
+#else
     return BLK_QC_T_NONE;
-    //return;
-
+#endif
 io_error:
     bio_io_error(bio);
+#ifdef KERNEL_6
+    return;
+#else
     return BLK_QC_T_NONE;
-    //return;
+#endif
 }
 
 static int brd_rw_page(struct block_device *bdev, sector_t sector, struct page *page, unsigned int op)
@@ -107,16 +117,22 @@ static int brd_alloc(void)
     disk->first_minor	= 0;
     disk->minors	= 1;
     disk->fops		= &brd_fops;
+#ifdef KERNEL_6
+#else
     disk->flags		= GENHD_FL_EXT_DEVT;
+#endif
     strcpy(disk->disk_name, "ramdisk");
     set_capacity(disk, 512*1024);
 
     blk_queue_physical_block_size(disk->queue, PAGE_SIZE);
     blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
     blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
+#ifdef KERNEL_6
+    if (add_disk(disk))
+    	goto out_free_dev;
+#else
     add_disk(disk);
-//    if (add_disk(disk))
-//	goto out_free_dev;
+#endif
 
     return 0;
 
@@ -151,8 +167,11 @@ static void __exit brd_exit(void)
     unregister_blkdev(major, "ramdisk");
 
     del_gendisk(disk);
+#ifdef KERNEL_6
+    put_disk(disk);
+#else
     blk_cleanup_disk(disk);
-//  put_disk(disk);
+#endif
 
     pr_info("ramdisk: module unloaded\n");
 }
