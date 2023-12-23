@@ -3,8 +3,11 @@
 #include <linux/blkdev.h>
 #include <linux/bio.h>
 #include <linux/pagemap.h>
+#include <linux/version.h>
 
-//#define KERNEL_6
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,0,0)
+#define KERNEL_6
+#endif
 
 static int major = 0;
 static unsigned char memory_data[512 * 1024 * 1024];
