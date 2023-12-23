@@ -45,6 +45,7 @@ static int brd_do_bvec(struct page *page, unsigned int len, unsigned int off, un
 }
 
 static blk_qc_t brd_submit_bio(struct bio *bio)
+//void brd_submit_bio(struct bio *bio)
 {
     sector_t sector = bio->bi_iter.bi_sector;
     struct bio_vec bvec;
@@ -67,9 +68,12 @@ static blk_qc_t brd_submit_bio(struct bio *bio)
 
     bio_endio(bio);
     return BLK_QC_T_NONE;
-    io_error:
+    //return;
+
+io_error:
     bio_io_error(bio);
     return BLK_QC_T_NONE;
+    //return;
 }
 
 static int brd_rw_page(struct block_device *bdev, sector_t sector, struct page *page, unsigned int op)
@@ -111,6 +115,8 @@ static int brd_alloc(void)
     blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
     blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
     add_disk(disk);
+//    if (add_disk(disk))
+//	goto out_free_dev;
 
     return 0;
 
@@ -146,6 +152,7 @@ static void __exit brd_exit(void)
 
     del_gendisk(disk);
     blk_cleanup_disk(disk);
+//  put_disk(disk);
 
     pr_info("ramdisk: module unloaded\n");
 }
